@@ -1,0 +1,73 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+from tkinter import *
+import pymysql
+from tkinter import messagebox
+
+def executesql():
+    merchantno = Entry_1.get()
+    submerchantno=Entry_2.get()
+    time=Entry_3.get()
+    db = pymysql.connect(host="10.10.10.175",
+                         port=3306,
+                         user='enjoy',
+                         passwd='Enjoy@2017',
+                         db="ts_eqipay_pay",
+                         charset='utf8')
+    cursor = db.cursor()
+
+    sql1="DELETE FROM tbl_collect_history\
+        WHERE USERNO='"+str(merchantno)+"' AND CREATETIME LIKE '"+time+"%';"
+    sql2="DELETE FROM tbl_collect_history_unique\
+        WHERE UNIQUE_KEY LIKE '%"+time+"%';"
+    sql3="DELETE FROM tbl_remit_record\
+        WHERE MERCHANT_NO='"+str(merchantno)+"'AND COLLECT_TIME LIKE '"+time+"%';"
+    sql4="DELETE FROM tbl_remit_record_unique\
+        WHERE UNIQUE_KEY LIKE '%"+time+"%';"
+    sql5="DELETE FROM tbl_notify_unique\
+        WHERE id IN (SELECT a.id FROM\
+        (SELECT * FROM tbl_notify_unique\
+        WHERE UNIQUE_KEY LIKE 'zhuxinyi@joinpay%'\
+        ORDER BY id DESC LIMIT 2) as a);"
+    sql8 = "UPDATE tbl_accounthistory_proxysett SET IS_SETT_COMPLETED=101\
+            WHERE USERNO='" + str(merchantno) + "' AND CREATETIME LIKE '" + time + "%';"
+    sqlList=[sql1,sql2,sql3,sql4,sql5,sql8]
+    if submerchantno :
+        sql6="DELETE FROM tbl_collect_history_sub\
+            WHERE SUB_USERNO='"+str(submerchantno)+"'AND CREATETIME LIKE '"+time+"%';"
+        sql7="UPDATE tbl_accounthistory_sub SET IS_SETT_COMPLETED=101\
+            WHERE SUB_USERNO='"+str(submerchantno)+"' AND CREATETIME LIKE '"+time+"%';"
+        sqlList = [sql1, sql2, sql3, sql4, sql5, sql6,sql7,sql8]
+    for sql in sqlList:
+        cursor.execute(sql)
+        db.commit()
+    db.close()
+    messagebox.showinfo("清算配置","已清除该商户在此日期的清算相关记录")
+
+window = Tk()
+window.title("清算数据处理工具")
+frame=Frame(window)
+frame.pack(side=TOP,fill=X)
+
+
+Label_1=Label(frame,text='商户编号')
+Label_1.grid(row=0,column=0)
+Entry_1=Entry(frame)
+Entry_1.grid(row=0,column=1)
+
+Label_2=Label(frame,text='子商户编号')
+Label_2.grid(row=1,column=0)
+Entry_2=Entry(frame)
+Entry_2.grid(row=1,column=1)
+
+Label_3=Label(frame,text='日期')
+Label_3.grid(row=2,column=0)
+Entry_3=Entry(frame)
+Entry_3.grid(row=2,column=1)
+
+submitButton=Button(frame,text='提交',command=executesql)
+submitButton.grid(row=3,column=2)
+
+# 进入消息循环
+window.mainloop()
