@@ -6,7 +6,7 @@ from email.mime.image import MIMEImage
 
 
 # send mails
-mail_host = "smtp.deckers.com"  # 设置服务器
+mail_host = "xxx.com"  # 设置服务器
 sender = 'mfg.test@deckers.com'
 receiver = 'sammy.zhu@deckers.com'
 
