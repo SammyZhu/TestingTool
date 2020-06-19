@@ -7,8 +7,8 @@ from email.mime.image import MIMEImage
 
 # send mails
 mail_host = "xxx.com"  # 设置服务器
-sender = 'mfg.test@deckers.com'
-receiver = 'sammy.zhu@deckers.com'
+sender = 'xxx.com'
+receiver = 'xxx.com'
 
 home = "/Applications/apache-jmeter-5.1.1/report/png/"
 with open(home + 'report.html') as f:
